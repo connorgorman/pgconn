@@ -565,6 +565,7 @@ func (pgConn *PgConn) receiveMessage() (pgproto3.BackendMessage, error) {
 	case *pgproto3.ReadyForQuery:
 		pgConn.txStatus = msg.TxStatus
 	case *pgproto3.ParameterStatus:
+		fmt.Println(pgConn.parameterStatuses)
 		pgConn.parameterStatuses[msg.Name] = msg.Value
 	case *pgproto3.ErrorResponse:
 		if msg.Severity == "FATAL" {
@@ -599,9 +600,10 @@ func (pgConn *PgConn) PID() uint32 {
 // TxStatus returns the current TxStatus as reported by the server in the ReadyForQuery message.
 //
 // Possible return values:
-//   'I' - idle / not in transaction
-//   'T' - in a transaction
-//   'E' - in a failed transaction
+//
+//	'I' - idle / not in transaction
+//	'T' - in a transaction
+//	'E' - in a failed transaction
 //
 // See https://www.postgresql.org/docs/current/protocol-message-formats.html.
 func (pgConn *PgConn) TxStatus() byte {
@@ -1731,7 +1733,7 @@ func (pgConn *PgConn) Hijack() (*HijackedConn, error) {
 		return nil, err
 	}
 	pgConn.status = connStatusClosed
-
+	fmt.Println(pgConn.parameterStatuses)
 	return &HijackedConn{
 		Conn:              pgConn.conn,
 		PID:               pgConn.pid,
